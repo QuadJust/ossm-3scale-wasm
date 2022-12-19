@@ -1,0 +1,50 @@
+apiVersion: extensions.istio.io/v1alpha1
+kind: WasmPlugin
+metadata:
+  name: bookinfo
+  namespace: bookinfo
+spec:
+  phase: STATS
+  pluginConfig:
+    api: v1
+    backend:
+      extensions:
+      - no_body
+      name: backend
+      upstream:
+        name: outbound|3000||backend-listener.3scale.svc.cluster.local
+        timeout: 5000
+        url: http://backend-listener.3scale.svc.cluster.local
+    services:
+    - authorities:
+      - '*'
+      credentials:
+        app_id:
+          - filter:
+              path:
+                - envoy.filters.http.jwt_authn
+                - "0"
+              keys:
+                - azp
+              ops:
+                - take:
+                    head: 
+      id: "3"
+      token: c291e82e450aa28c3251ec846a6736e48639526592c210eff2025245ca85533d
+      mapping_rules:
+      - method: GET
+        pattern: /
+        usages:
+        - delta: 1
+          name: hits
+    system:
+      name: system
+      token: VDG2U6c9kXwdetUH
+      upstream:
+        name: outbound|3000||system-provider.3scale.svc.cluster.local
+        timeout: 5000
+        url: http://system-provider.3scale.svc.cluster.local
+  selector:
+    matchLabels:
+      app: productpage
+  url: oci://quay.io/phala/threescale-wasm-auth:v17

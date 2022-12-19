@@ -1,4 +1,4 @@
-# 3scale OSSM v2.1 WASM Tutorial
+# 3scale OSSM v2.3 WASM Tutorial
 
 The following tutorial steps through provisioning and configuration for API management using 3scale in the context of services deployed to a Service Mesh.
 
@@ -71,8 +71,8 @@ oc apply -f istio-system/ServiceMeshMemberRoll_default.yaml -n istio-system
 Provision the bookinfo application.
 
 ```
-oc apply -f https://raw.githubusercontent.com/maistra/istio/maistra-2.1/samples/bookinfo/platform/kube/bookinfo.yaml -n bookinfo
-oc apply -f https://raw.githubusercontent.com/maistra/istio/maistra-2.1/samples/bookinfo/networking/bookinfo-gateway.yaml -n bookinfo
+oc apply -f https://raw.githubusercontent.com/maistra/istio/maistra-2.3/samples/bookinfo/platform/kube/bookinfo.yaml -n bookinfo
+oc apply -f https://raw.githubusercontent.com/maistra/istio/maistra-2.3/samples/bookinfo/networking/bookinfo-gateway.yaml -n bookinfo
 ```
 
 You can now verify that the bookinfo service is responding:
@@ -106,7 +106,7 @@ oc apply -f bookinfo/ServiceEntry_system-entry.yaml -f bookinfo/ServiceEntry_bac
 
 #### Configure system token
 
-Copy the `ADMIN_ACCESS_TOKEN` key of the `system-seed` secret in the `3scale` namespace and replace the value of `spec.config.system.token` in `bookinfo/ServiceMeshExtension_bookinfo.yaml`
+Copy the `ADMIN_ACCESS_TOKEN` key of the `system-seed` secret in the `3scale` namespace and replace the value of `spec.pluginConfig.system.token` in `bookinfo/WasmPlugin_bookinfo_bookinfo.yaml`
 
 #### Configure service
 
@@ -116,12 +116,12 @@ Use 3scale admin access token along with the 3scale product ID from the 3scale p
 curl https://3scale-admin.{cluster wildcard url}/admin/api/services/{product id}/proxy/configs/production/latest.json?access_token={access token} | jq '.proxy_config.content.backend_authentication_value'
 ```
 
-The output will be the service token. Modify the `id` and `token` of the `spec.config.services` entry in `bookinfo/ServiceMeshExtension_bookinfo.yaml`. The `id` value should be the product ID.
+The output will be the service token. Modify the `id` and `token` of the `spec.pluginConfig.services` entry in `bookinfo/WasmPlugin_bookinfo.yaml`. The `id` value should be the product ID.
 
 #### Apply extension
 
 ```
-oc apply -f bookinfo/ServiceMeshExtension_bookinfo.yaml -n bookinfo
+oc apply -f bookinfo/WasmPlugin_bookinfo_bookinfo.yaml -n bookinfo
 ```
 
 ### Authorize an Application to Consume the API
@@ -233,14 +233,14 @@ oc apply -f bookinfo/RequestAuthentication_bookinfo-oidc.yaml -n bookinfo
 ```
 ##### Configure system token
 
-Copy the `ADMIN_ACCESS_TOKEN` key of the `system-seed` secret in the `3scale` namespace and replace the value of `spec.config.system.token` in `bookinfo/ServiceMeshExtension_bookinfo-oidc.yaml`
+Copy the `ADMIN_ACCESS_TOKEN` key of the `system-seed` secret in the `3scale` namespace and replace the value of `spec.pluginConfig.system.token` in `bookinfo/WasmPlugin_bookinfo-oidc.yaml`
 
 ##### Configure service
 Use 3scale admin access token along with the 3scale product ID from the 3scale product configuration and run the following command with values replaced:
 ```
 curl https://3scale-admin.{cluster wildcard url}/admin/api/services/{product id}/proxy/configs/production/latest.json?access_token={access token} | jq '.proxy_config.content.backend_authentication_value'
 ```
-The output will be the service token. Modify the `id` and `token` of the `spec.config.services` entry in `bookinfo/ServiceMeshExtension_bookinfo-oidc.yaml`. The `id` value should be the product ID.
+The output will be the service token. Modify the `id` and `token` of the `spec.pluginConfig.services` entry in `bookinfo/WasmPlugin_bookinfo-oidc.yaml`. The `id` value should be the product ID.
 
 ##### Apply extension
 
@@ -258,13 +258,13 @@ The output will be the service token. Modify the `id` and `token` of the `spec.c
                 - take:
                     head: 1
 ```
-Please delete the `ServiceMeshExtension` if created before else ignore the step
+Please delete the `WasmPlugin` if created before else ignore the step
 ```
 oc delete sme bookinfo -n bookinfo
 ```
-Apply the ServiceMesh Extension
+Apply the WasmPlugin
 ```                   
-oc apply -f bookinfo/ServiceMeshExtension_bookinfo-oidc.yaml -n bookinfo
+oc apply -f bookinfo/WasmPlugin_bookinfo-oidc.yaml -n bookinfo
 ```
 
 ##### Authorize an Application to Consume the API
