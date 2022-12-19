@@ -6,7 +6,7 @@ The following tutorial steps through provisioning and configuration for API mana
 
 The following assumptions are made about the target environment:
 
-- OpenShift version 4.8+
+- OpenShift version 4.9+
 - At least 3 worker nodes
 - Appropriate Red Hat software subscriptions
 
